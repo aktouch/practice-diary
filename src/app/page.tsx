@@ -1,103 +1,183 @@
-import Image from "next/image";
+// src/app/page.tsx
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import { useMonthEntries } from '@/hooks/useEntries';
+import Header from '@/components/Header';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday } from 'date-fns';
+import { ja } from 'date-fns/locale';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [viewType, setViewType] = useState<'calendar' | 'list'>('calendar');
+  
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth() + 1;
+  
+  const { entries, loading: entriesLoading } = useMonthEntries(
+    user?.uid || null,
+    year,
+    month
+  );
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+  if (loading || !user) {
+    return (
+      <div>
+        <Header />
+        <div className="flex justify-center items-center min-h-[80vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
+      </div>
+    );
+  }
+
+  const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
+  const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
+
+  // 月のすべての日付を取得
+  const monthStart = startOfMonth(currentDate);
+  const monthEnd = endOfMonth(currentDate);
+  const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
+  // カレンダービューのレンダリング
+  const renderCalendarView = () => {
+    return (
+      <div className="grid grid-cols-7 gap-1">
+        {/* 曜日のヘッダー */}
+        {['日', '月', '火', '水', '木', '金', '土'].map((day) => (
+          <div key={day} className="text-center py-2 font-medium">
+            {day}
+          </div>
+        ))}
+        
+        {/* 月の最初の日の前の空白セル */}
+        {Array.from({ length: monthStart.getDay() }).map((_, index) => (
+          <div key={`empty-${index}`} className="p-2 bg-gray-100"></div>
+        ))}
+        
+        {/* 日付セル */}
+        {daysInMonth.map((day) => {
+          const dateStr = format(day, 'yyyy-MM-dd');
+          const hasEntries = entries[dateStr] && entries[dateStr].length > 0;
+          
+          return (
+            <div 
+              key={dateStr} 
+              onClick={() => router.push(`/entries/${dateStr}`)}
+              className={`
+                p-2 min-h-[80px] border cursor-pointer
+                ${isToday(day) ? 'bg-blue-50 border-blue-300' : ''}
+                ${isSameMonth(day, currentDate) ? 'bg-white' : 'bg-gray-100 text-gray-400'}
+                ${hasEntries ? 'relative' : ''}
+              `}
+            >
+              <div className="font-semibold">{format(day, 'd')}</div>
+              
+              {/* 記録がある場合のインジケーター */}
+              {hasEntries && (
+                <div className="mt-1">
+                  <div className="bg-green-500 w-2 h-2 rounded-full absolute bottom-2 right-2"></div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // リストビューのレンダリング
+  const renderListView = () => {
+    return (
+      <div className="space-y-2">
+        {daysInMonth.map((day) => {
+          const dateStr = format(day, 'yyyy-MM-dd');
+          const hasEntries = entries[dateStr] && entries[dateStr].length > 0;
+          
+          return (
+            <div 
+              key={dateStr}
+              onClick={() => router.push(`/entries/${dateStr}`)}
+              className={`
+                p-4 border rounded-lg cursor-pointer
+                ${isToday(day) ? 'bg-blue-50 border-blue-300' : 'bg-white'}
+                ${hasEntries ? 'border-green-300' : ''}
+              `}
+            >
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="font-semibold">{format(day, 'M月d日', { locale: ja })}</div>
+                  <div className="text-sm text-gray-500">{format(day, 'EEEE', { locale: ja })}</div>
+                </div>
+                {hasEntries && (
+                  <div className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                    {entries[dateStr].length}件
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  return (
+    <div>
+      <Header />
+      
+      <main className="container mx-auto p-4">
+        <div className="mb-6 flex justify-between items-center">
+          <h1 className="text-2xl font-bold">練習日誌</h1>
+          
+          <div className="flex gap-2">
+            <button
+              onClick={() => setViewType('calendar')}
+              className={`px-3 py-1 rounded ${viewType === 'calendar' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+            >
+              カレンダー
+            </button>
+            <button
+              onClick={() => setViewType('list')}
+              className={`px-3 py-1 rounded ${viewType === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+            >
+              リスト
+            </button>
+          </div>
+        </div>
+
+        <div className="mb-6 flex justify-between items-center">
+          <button onClick={prevMonth} className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+            前の月
+          </button>
+          
+          <h2 className="text-xl font-semibold">
+            {format(currentDate, 'yyyy年M月', { locale: ja })}
+          </h2>
+          
+          <button onClick={nextMonth} className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+            次の月
+          </button>
+        </div>
+
+        {entriesLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          viewType === 'calendar' ? renderCalendarView() : renderListView()
+        )}
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
