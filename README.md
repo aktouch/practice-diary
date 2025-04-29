@@ -28,6 +28,6 @@ Googleログインを使って個人の記録を安全に管理し、将来的�
 ## 📂 開発方法
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/practice-diary.git
+git clone https://github.com/aktouch/practice-diary
 cd practice-diary
 npm install
