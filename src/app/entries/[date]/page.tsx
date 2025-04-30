@@ -3,11 +3,13 @@ import { parseISO, format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import EntryClientPage from './EntryClientPage';
 
-type PageParams = {
-  date: string;
+type PageProps = {
+  params: {
+    date: string;
+  };
 };
 
-export default async function EntriesPage({ params }: { params: PageParams }) {
+export default async function EntriesPage({ params }: PageProps) {
   const { date } = params;
   const parsedDate = parseISO(date);
   const formattedDate = format(parsedDate, 'yyyy年M月d日 (EEEE)', { locale: ja });
