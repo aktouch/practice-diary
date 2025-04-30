@@ -1,6 +1,6 @@
 # 🏃‍♂️ Practice Diary - ランナーのための練習記録アプリ
 
-![Demo](https://practice-diary-two.vercel.app/)  
+https://practice-diary-two.vercel.app/ 
 （実際の動作はこちらからご覧いただけます）
 
 ---
