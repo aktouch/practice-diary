@@ -35,10 +35,10 @@ export interface Entry {
   type: EntryType;
   targetDate: Timestamp;
   text: string;
+  createdAt: Timestamp | Date;
+  updatedAt: Timestamp | Date;
   stravaData?: any;
   status: string;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
 }
 
 // ユーザーの型定義
