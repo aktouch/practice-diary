@@ -35,8 +35,6 @@ export default function ChatInput({ activeTab, onSend }: ChatInputProps) {
         {/* GPTボタン */}
         <Button
           type="button"
-          size="icon"
-          variant="ghost"
           onClick={() => setAssistOpen(true)}
         >
           <Sparkles className="h-5 w-5" />
