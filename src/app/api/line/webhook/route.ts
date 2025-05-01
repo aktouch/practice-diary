@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Client, middleware, WebhookEvent } from '@line/bot-sdk';
+import { validateSignature, Client, WebhookEvent } from '@line/bot-sdk';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
-// LINE SDKの設定
 const config = {
   channelSecret: process.env.LINE_CHANNEL_SECRET!,
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
@@ -12,16 +11,16 @@ const config = {
 const lineClient = new Client(config);
 
 export async function POST(req: NextRequest) {
-  console.log('LINE Webhookにリクエストが到達しました！');
-  const body = await req.json();
-  console.log(body);
-
-  // LINEからの署名を検証（推奨）
   const signature = req.headers.get('x-line-signature') || '';
-  if (!middleware.validateSignature(JSON.stringify(body), config.channelSecret, signature)) {
+  const rawBody = await req.text();
+
+  // 署名検証（正しいLINEリクエストか）
+  const isValid = validateSignature(rawBody, config.channelSecret, signature);
+  if (!isValid) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
+  const body = JSON.parse(rawBody);
   const events: WebhookEvent[] = body.events;
 
   await Promise.all(events.map(handleEvent));
@@ -29,12 +28,11 @@ export async function POST(req: NextRequest) {
   return new NextResponse('OK', { status: 200 });
 }
 
-// イベント処理関数
 async function handleEvent(event: WebhookEvent) {
   if (event.type === 'message' && event.message.type === 'text') {
     const message = event.message.text;
 
-    // Firestoreにメッセージを保存
+    // Firestore に保存
     await addDoc(collection(db, 'entries'), {
       content: message,
       source: 'line',
@@ -49,3 +47,4 @@ async function handleEvent(event: WebhookEvent) {
     });
   }
 }
+
