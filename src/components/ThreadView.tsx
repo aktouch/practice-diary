@@ -1,7 +1,7 @@
 // src/components/ThreadView.tsx
 'use client';
 
-import { Entry } from '@/types/entry';
+import type { Entry } from '@/lib/firebase';
 import { format } from 'date-fns';
 
 type Props = {
