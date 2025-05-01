@@ -73,14 +73,20 @@ function EntryClientPage({ date, formattedDate }: Props) {
         {entries
           .filter((entry) => entry.type === activeTab)
           .sort((a, b) => {
-            const aTime = a.createdAt?.toMillis?.() ?? 0;
-            const bTime = b.createdAt?.toMillis?.() ?? 0;
+            const aTime = a.createdAt instanceof Timestamp
+              ? a.createdAt.toMillis()
+              : a.createdAt.getTime();
+            const bTime = b.createdAt instanceof Timestamp
+              ? b.createdAt.toMillis()
+              : b.createdAt.getTime();
             return aTime - bTime;
           })
           .map((entry) => (
             <div key={entry.id} className="flex flex-col space-y-1">
               <div className="text-xs text-gray-500 ml-2">
-                {entry.createdAt?.toDate ? format(entry.createdAt.toDate(), 'HH:mm') : ''}
+                {entry.createdAt instanceof Timestamp
+                  ? format(entry.createdAt.toDate(), 'HH:mm')
+                  : format(entry.createdAt, 'HH:mm')}
               </div>
               <MessageBubble entry={entry} />
             </div>
