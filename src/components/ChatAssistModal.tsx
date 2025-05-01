@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 interface ChatAssistModalProps {
   open: boolean
   onClose: () => void
-  onInsert: (text: string) => void // ← ここだけ変更
+  onInsert: (text: string) => void
   type: "plan" | "record"
 }
 
@@ -59,12 +59,8 @@ export default function ChatAssistModal({ open, onClose, onInsert, type }: ChatA
           )}
 
           <div className="flex justify-end gap-2">
-            <Button variant="secondary" onClick={onClose}>
-              閉じる
-            </Button>
-            <Button onClick={handleSelect} disabled={!suggestedText}>
-              この内容を使う
-            </Button>
+            <Button onClick={onClose}>閉じる</Button>
+            <Button onClick={handleSelect} disabled={!suggestedText}>追加する</Button>
           </div>
         </div>
       </DialogContent>
