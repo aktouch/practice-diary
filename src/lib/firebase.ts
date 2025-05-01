@@ -30,7 +30,7 @@ export { app, auth, db, googleProvider, serverTimestamp };
 export type EntryType = 'plan' | 'record';
 
 export interface Entry {
-  id?: string;
+  id: string;
   userId: string;
   type: EntryType;
   targetDate: Timestamp;
