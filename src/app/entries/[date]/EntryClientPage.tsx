@@ -51,7 +51,7 @@ function EntryClientPage({ date, formattedDate }: Props) {
     <div className="flex flex-col h-screen bg-gray-50">
       {/* ヘッダー */}
       <header className="flex items-center p-4 border-b bg-white shadow-sm">
-        <Button variant="ghost" size="icon" onClick={goBack} className="mr-2">
+        <Button onClick={goBack} className="mr-2">
           <ChevronLeft className="h-5 w-5" />
         </Button>
         <div className="flex items-center">
