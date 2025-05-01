@@ -84,9 +84,12 @@ function EntryClientPage({ date, formattedDate }: Props) {
           .map((entry) => (
             <div key={entry.id} className="flex flex-col space-y-1">
               <div className="text-xs text-gray-500 ml-2">
-                {entry.createdAt instanceof Timestamp
-                  ? format(entry.createdAt.toDate(), 'HH:mm')
-                  : format(entry.createdAt, 'HH:mm')}
+                {format(
+                  entry.createdAt instanceof Timestamp
+                    ? entry.createdAt.toDate()
+                    : entry.createdAt,
+                  'HH:mm'
+                )}
               </div>
               <MessageBubble entry={entry} />
             </div>

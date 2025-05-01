@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 type Entry = {
   id: string
   text: string
-  createdAt: Date
+  createdAt: Timestamp | Date;
   userId: string
   type: "plan" | "record"
 }
