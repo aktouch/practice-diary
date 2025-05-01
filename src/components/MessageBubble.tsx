@@ -1,3 +1,4 @@
+import { Timestamp } from 'firebase/firestore'
 import { cn } from "@/lib/utils"
 
 type Entry = {
