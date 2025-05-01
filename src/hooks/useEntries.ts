@@ -1,50 +1,46 @@
 // src/hooks/useEntries.ts
 import { useState, useEffect } from 'react';
-import { 
-  collection, 
-  query, 
-  where, 
-  orderBy, 
-  getDocs, 
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
   addDoc,
   Timestamp,
-  DocumentData
 } from 'firebase/firestore';
 import { db, Entry, EntryType, serverTimestamp } from '@/lib/firebase';
 import { startOfDay, endOfDay } from 'date-fns';
-import { format as formatDate } from 'date-fns';
 
 export const useEntries = (userId: string | null, date: Date | null) => {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  // 特定の日付の記録を取得
+  // 📌 リアルタイム取得
   useEffect(() => {
-    const fetchEntries = async () => {
-      if (!userId || !date) {
-        setEntries([]);
-        setLoading(false);
-        return;
-      }
+    if (!userId || !date) {
+      setEntries([]);
+      setLoading(false);
+      return;
+    }
 
-      setLoading(true);
-      try {
-        const startDate = Timestamp.fromDate(startOfDay(date));
-        const endDate = Timestamp.fromDate(endOfDay(date));
-        
-        const entriesQuery = query(
-          collection(db, 'entries'),
-          where('userId', '==', userId),
-          where('targetDate', '>=', startDate),
-          where('targetDate', '<=', endDate),
-          orderBy('targetDate'),
-          orderBy('createdAt')
-        );
+    const startDate = Timestamp.fromDate(startOfDay(date));
+    const endDate = Timestamp.fromDate(endOfDay(date));
 
-        const querySnapshot = await getDocs(entriesQuery);
+    const entriesQuery = query(
+      collection(db, 'entries'),
+      where('userId', '==', userId),
+      where('targetDate', '>=', startDate),
+      where('targetDate', '<=', endDate),
+      orderBy('targetDate'),
+      orderBy('createdAt')
+    );
+
+    const unsubscribe = onSnapshot(
+      entriesQuery,
+      (querySnapshot) => {
         const fetchedEntries: Entry[] = [];
-        
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           fetchedEntries.push({
@@ -56,23 +52,23 @@ export const useEntries = (userId: string | null, date: Date | null) => {
             stravaData: data.stravaData,
             status: data.status,
             createdAt: data.createdAt,
-            updatedAt: data.updatedAt
+            updatedAt: data.updatedAt,
           });
         });
-
         setEntries(fetchedEntries);
-      } catch (err: any) {
-        console.error('練習記録取得エラー:', err);
+        setLoading(false);
+      },
+      (err) => {
+        console.error('リアルタイム取得エラー:', err);
         setError(err);
-      } finally {
         setLoading(false);
       }
-    };
+    );
 
-    fetchEntries();
+    return () => unsubscribe();
   }, [userId, date]);
 
-  // 新しい練習記録の追加
+  // 🔧 投稿
   const addEntry = async (entryData: {
     type: EntryType;
     text: string;
@@ -91,39 +87,6 @@ export const useEntries = (userId: string | null, date: Date | null) => {
       };
 
       const docRef = await addDoc(collection(db, 'entries'), newEntry);
-      
-      // 最新の記録を取得し直す
-      const startDate = Timestamp.fromDate(startOfDay(date));
-      const endDate = Timestamp.fromDate(endOfDay(date));
-      
-      const entriesQuery = query(
-        collection(db, 'entries'),
-        where('userId', '==', userId),
-        where('targetDate', '>=', startDate),
-        where('targetDate', '<=', endDate),
-        orderBy('targetDate'),
-        orderBy('createdAt')
-      );
-
-      const querySnapshot = await getDocs(entriesQuery);
-      const updatedEntries: Entry[] = [];
-      
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        updatedEntries.push({
-          id: doc.id,
-          userId: data.userId,
-          type: data.type,
-          targetDate: data.targetDate,
-          text: data.text,
-          stravaData: data.stravaData,
-          status: data.status,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt
-        });
-      });
-
-      setEntries(updatedEntries);
       return docRef.id;
     } catch (err: any) {
       console.error('練習記録追加エラー:', err);
@@ -135,7 +98,9 @@ export const useEntries = (userId: string | null, date: Date | null) => {
   return { entries, loading, error, addEntry };
 };
 
-// 月ごとの記録取得用フック
+import { getDocs } from 'firebase/firestore'; // ファイル上部に必要な場合あり
+import { format as formatDate } from 'date-fns'; // 同様に必要
+
 export function useMonthEntries(userId: string | null, year: number, month: number) {
   const [entries, setEntries] = useState<Record<string, Entry[]>>({});
   const [loading, setLoading] = useState(true);
@@ -153,7 +118,7 @@ export function useMonthEntries(userId: string | null, year: number, month: numb
         const entriesRef = collection(db, 'entries');
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0);
-        
+
         const q = query(
           entriesRef,
           where('userId', '==', userId),
@@ -198,8 +163,4 @@ export function useMonthEntries(userId: string | null, year: number, month: numb
   }, [userId, year, month]);
 
   return { entries, loading };
-}
-
-function format(date: Date, formatStr: string): string {
-  return date.toISOString().split('T')[0];
 }

@@ -1,0 +1,24 @@
+// src/components/ThreadView.tsx
+'use client';
+
+import { Entry } from '@/types/entry';
+import { format } from 'date-fns';
+
+type Props = {
+  entries: Entry[];
+};
+
+export default function ThreadView({ entries }: Props) {
+  return (
+    <div className="flex flex-col space-y-4 pb-32 px-4">
+      {entries.map((entry) => (
+        <div key={entry.id} className="flex flex-col">
+          <span className="text-xs text-gray-500">{format(entry.createdAt.toDate(), 'yyyy/MM/dd HH:mm')}</span>
+          <div className="bg-gray-100 rounded-xl px-4 py-2 max-w-xs">
+            <p className="text-sm whitespace-pre-wrap">{entry.text}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

@@ -1,0 +1,57 @@
+"use client"
+
+import { useState, type FormEvent } from "react"
+import { Send } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+
+interface ChatInputProps {
+  activeTab: "plan" | "record"
+  onSend: (text: string) => void
+}
+
+export default function ChatInput({ activeTab, onSend }: ChatInputProps) {
+  const [text, setText] = useState("")
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault()
+    if (text.trim()) {
+      onSend(text)
+      setText("")
+    }
+  }
+
+  const placeholderText = activeTab === "plan" ? "今日の計画を入力..." : "今日の実績を入力..."
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className={cn("flex items-center gap-2 p-3", activeTab === "plan" ? "bg-blue-50" : "bg-green-50")}
+    >
+      <div className="relative flex-1">
+        <input
+          type="text"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={placeholderText}
+          className={cn(
+            "w-full p-3 pr-10 rounded-full border bg-white focus:outline-none focus:ring-2",
+            activeTab === "plan" ? "focus:ring-blue-300 border-blue-200" : "focus:ring-green-300 border-green-200",
+          )}
+        />
+      </div>
+      <Button
+        type="submit"
+        size="icon"
+        className={cn(
+          "rounded-full h-12 w-12 flex items-center justify-center",
+          activeTab === "plan" ? "bg-blue-500 hover:bg-blue-600" : "bg-green-500 hover:bg-green-600",
+        )}
+        disabled={!text.trim()}
+      >
+        <Send className="h-5 w-5" />
+      </Button>
+    </form>
+  )
+}
+
