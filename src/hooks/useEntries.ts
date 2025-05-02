@@ -30,7 +30,6 @@ export const useEntries = (userId: string | null, date: Date | null) => {
 
     const entriesQuery = query(
       collection(db, 'entries'),
-      where('userId', '==', userId),
       where('targetDate', '>=', startDate),
       where('targetDate', '<=', endDate),
       orderBy('targetDate'),

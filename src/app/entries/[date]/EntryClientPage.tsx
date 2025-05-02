@@ -20,6 +20,13 @@ type Props = {
   formattedDate: string;
 };
 
+const safeGetTime = (value: Timestamp | Date | null | undefined): number => {
+  if (!value) return 0;
+  if (value instanceof Timestamp) return value.toMillis();
+  if (value instanceof Date) return value.getTime();
+  return 0;
+};
+
 function EntryClientPage({ date, formattedDate }: Props) {
   const router = useRouter();
   const { user } = useAuth();
@@ -72,15 +79,7 @@ function EntryClientPage({ date, formattedDate }: Props) {
       >
         {entries
           .filter((entry) => entry.type === activeTab)
-          .sort((a, b) => {
-            const aTime = a.createdAt instanceof Timestamp
-              ? a.createdAt.toMillis()
-              : a.createdAt.getTime();
-            const bTime = b.createdAt instanceof Timestamp
-              ? b.createdAt.toMillis()
-              : b.createdAt.getTime();
-            return aTime - bTime;
-          })
+          .sort((a, b) => safeGetTime(a.createdAt) - safeGetTime(b.createdAt))
           .map((entry) => (
             <div key={entry.id} className="flex flex-col space-y-1">
               <div className="text-xs text-gray-500 ml-2">

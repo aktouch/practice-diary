@@ -1,50 +1,64 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateSignature, Client, WebhookEvent } from '@line/bot-sdk';
-import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { Client, validateSignature } from '@line/bot-sdk';
+import { adminDb } from '@/lib/firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
 
+// LINE Bot設定
 const config = {
-  channelSecret: process.env.LINE_CHANNEL_SECRET!,
-  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
+  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || '',
+  channelSecret: process.env.LINE_CHANNEL_SECRET || '',
 };
+const client = new Client(config);
 
-const lineClient = new Client(config);
-
+// POST: Webhookからの受信
 export async function POST(req: NextRequest) {
-  const signature = req.headers.get('x-line-signature') || '';
-  const rawBody = await req.text();
+  try {
+    const signature = req.headers.get('x-line-signature') || '';
+    const body = await req.text();
 
-  // 署名検証（正しいLINEリクエストか）
-  const isValid = validateSignature(rawBody, config.channelSecret, signature);
-  if (!isValid) {
-    return new NextResponse('Unauthorized', { status: 401 });
+    // 署名検証
+    if (!validateSignature(body, config.channelSecret, signature)) {
+      console.error('❌ Invalid signature');
+      return new NextResponse('Invalid signature', { status: 401 });
+    }
+
+    const { events } = JSON.parse(body);
+    console.log('✅ Events received:', events);
+
+    for (const event of events) {
+      if (event.type === 'message' && event.message.type === 'text') {
+        const userId = event.source.userId;
+        const text = event.message.text;
+        console.log('📩 LINE message:', { userId, text });
+
+        // Firestoreに記録
+        await adminDb.collection('entries').add({
+          userId: `lineUserId_${userId}`,
+          text,
+          type: 'record',
+          targetDate: Timestamp.fromDate(new Date()),
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now(),
+          status: 'confirmed',
+        });
+        console.log('✅ Firestore entry saved!');
+
+        // 応答
+        await client.replyMessage(event.replyToken, {
+          type: 'text',
+          text: '記録しました📓',
+        });
+      }
+    }
+
+    return new NextResponse('OK', { status: 200 });
+  } catch (err) {
+    console.error('❌ Error in LINE Webhook POST:', err);
+    return new NextResponse('Internal Server Error', { status: 500 });
   }
-
-  const body = JSON.parse(rawBody);
-  const events: WebhookEvent[] = body.events;
-
-  await Promise.all(events.map(handleEvent));
-
-  return new NextResponse('OK', { status: 200 });
 }
 
-async function handleEvent(event: WebhookEvent) {
-  if (event.type === 'message' && event.message.type === 'text') {
-    const message = event.message.text;
-
-    // Firestore に保存
-    await addDoc(collection(db, 'entries'), {
-      content: message,
-      source: 'line',
-      createdAt: serverTimestamp(),
-      targetDate: serverTimestamp(),
-    });
-
-    // ユーザーに返信（任意）
-    await lineClient.replyMessage(event.replyToken, {
-      type: 'text',
-      text: '練習記録を登録しました！',
-    });
-  }
+// GET: Webhook検証用
+export async function GET() {
+  return new Response('OK', { status: 200 });
 }
-
