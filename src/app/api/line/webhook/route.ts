@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
   const response = new NextResponse('OK', { status: 200 });
 
   // 🔄 非同期で処理を継続
-  events.forEach(async (event) => {
+  events.forEach(async (event: any) => {
     try {
       if (event.type === 'message' && event.message.type === 'text') {
         const userId = event.source.userId;
