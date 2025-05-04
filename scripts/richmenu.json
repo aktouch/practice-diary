@@ -1,0 +1,16 @@
+{
+    "size": { "width": 2500, "height": 843 },
+    "selected": true,
+    "name": "WebAppMenu",
+    "chatBarText": "メニューを開く",
+    "areas": [
+      {
+        "bounds": { "x": 0, "y": 0, "width": 2500, "height": 843 },
+        "action": {
+          "type": "uri",
+          "label": "Webで記録を見る",
+          "uri": "https://practice-diary-dzhy.vercel.app"
+        }
+      }
+    ]
+  }
