@@ -1,0 +1,24 @@
+name: LINE Daily Reminder
+
+on:
+  schedule:
+    - cron: '0 12 * * *'  # JST 21:00
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send LINE Broadcast Message
+        run: |
+          curl -X POST https://api.line.me/v2/bot/message/broadcast \
+          -H "Authorization: Bearer ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+                "messages":[
+                  {
+                    "type":"text",
+                    "text":"🏃‍♂️ 今日の練習記録、忘れずに！Webで入力できます👇\nhttps://practice-diary-dzhy.vercel.app"
+                  }
+                ]
+              }'
