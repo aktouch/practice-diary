@@ -18,7 +18,7 @@ jobs:
                 "messages":[
                   {
                     "type":"text",
-                    "text":"🏃‍♂️ 今日の練習記録、忘れずに！Webで入力できます👇\nhttps://practice-diary-dzhy.vercel.app"
+                    "text":"🏃‍♂️ 今日の練習記録、忘れずに！\n\n👇Web入力はこちら（外部ブラウザで開いてください）\nhttps://practice-diary-dzhy.vercel.app"
                   }
                 ]
               }'
