@@ -1,87 +1,30 @@
-# 🏃‍♂️ Practice Diary - ランナーのための練習記録アプリ
+# 🏃‍♂️ Practice Diary（練習日誌アプリ）
 
-[![デモはこちら](https://img.shields.io/badge/Live-Demo-blue?style=flat-square)](https://practice-diary-two.vercel.app/)
+個人練習を記録・分析できるアスリート向けアプリです。
+Googleログインで記録し、LINE連携で通知や簡単入力も対応。
 
----
+## 🌐 Webアプリ（公開版）
+[https://practice-diary-dzhy.vercel.app](https://practice-diary-dzhy.vercel.app)
 
-## 📌 概要
+- Googleアカウントでログイン後、練習記録をカレンダー形式で確認できます
+- Firestore を用いた append-only ログ設計
+- GPT による要約機能（開発中）
 
-**Practice Diary** は、ランナーが日々の練習を記録・振り返るためのカレンダー型日誌アプリです。  
-Googleログイン、カレンダーUI、Firestore保存に対応しており、今後はGPT・Strava・LINE Botとの連携も予定しています。
+## 💬 LINE連携（Bot）
+- [LINEでBotを追加](https://lin.ee/fFbx6Gf) ←ここに**友だち追加用URL**を記載
+- 毎晩21時に「今日の練習を記録しよう！」と通知
+- メニューからWeb版にもアクセス可能（外部ブラウザ起動）
 
----
+## 🛠 技術構成
+- Frontend: Next.js (App Router, TypeScript)
+- Backend: Firebase Auth / Firestore / Functions
+- Notification: GitHub Actions + LINE Messaging API
+- AI連携: OpenAI GPT (予定)
 
-## ✨ 主な機能（v0.1）
-
-- ✅ Googleアカウントでログイン（Firebase Authentication）
-- ✅ カレンダーから日付を選択して練習記録（計画 or 実績）を投稿
-- ✅ 投稿は日付単位でスレッド表示（タイムスタンプ付き）
-- ✅ Firestoreに保存・読み込み
-- ✅ レスポンシブ対応（モバイルでも利用可能）
-
----
-
-## 🛠️ 技術スタック
-
-| 項目 | 使用技術 |
-|:--|:--|
-| フロントエンド | Next.js (App Router) / TypeScript / TailwindCSS |
-| バックエンド | Firebase (Auth, Firestore) |
-| デプロイ | Vercel |
-| 日付処理 | date-fns |
-| 状態管理 | useState / useEffect（将来的に useReducer も視野） |
+## 🔜 今後の開発予定（v0.7以降）
+- LINE風チャットUIでGPTからのフィードバックを表示
+- Strava自動連携（距離/ペースの取得）
+- スマホアプリ化（Flutter対応）
 
 ---
 
-## 🚀 アクセスURL
-
-📎 [https://practice-diary-two.vercel.app](https://practice-diary-two.vercel.app)
-
-※ Googleログイン後、カレンダーから日付を選んで練習記録を投稿してください。
-
----
-
-## 🧪 使い方
-
-1. トップ画面で「Googleログイン」
-2. カレンダーから任意の日付を選択
-3. 記録種別（計画 or 実績）を選び、テキストを入力
-4. 「投稿する」ボタンで保存
-5. 入力済みの記録がスレッドとして表示されます
-
----
-
-## 📱 モバイルUIチェックリスト
-
-| 項目 | 確認ポイント | 対応状況 |
-|:--|:--|:--|
-| ✅ 文字サイズ | スマホで読みやすいか | Tailwindで調整済み |
-| ✅ スクロール挙動 | カレンダーと投稿一覧のスムーズ表示 | OK |
-| ✅ 投稿フォームのUX | タップしやすく崩れないか | 問題なし |
-| ✅ ボタンサイズ | モバイルでも押しやすい | OK |
-| ⚠️ iOSの挙動 | キーボード表示時のスクロール影響 | 実機テスト中（軽微）
-
----
-
-## 🔮 今後の機能追加（構想）
-
-| 機能 | 内容 |
-|:--|:--|
-| 🤖 GPT連携 | 記録内容のサマリ生成、調子の傾向分析、疲労度推定など |
-| 📈 Strava API連携 | 実走行データ（距離・時間・ペース等）を自動で記録 |
-| 🧠 GPTメニュー提案 | 今日の状態に応じた練習メニューを生成し、カレンダーに登録 |
-| 🗓️ LINE Bot対応 | 日々の入力リマインド・Bot返信投稿 → Web表示との統合 |
-| 📊 ダッシュボード | 月間走行距離・練習種別・強度分布の可視化など |
-
----
-
-## 🗺️ ロードマップ
-
-| フェーズ | 内容 | ステータス |
-|:--|:--|:--|
-| v0.1 | MVP：Googleログイン、カレンダー選択、記録投稿 | ✅ 完了 |
-| v0.2 | GPT連携：記録の分析・サマリ生成 | 🔜 実装予定 |
-| v0.3 | Strava連携：練習データの自動取得・統合表示 | 🔜 実装予定 |
-| v0.4 | LINE Bot連携：通知・投稿・遷移 | 🔜 実装予定 |
-| v0.5 | 可視化UI：集計・分布・履歴の視覚化 | 🔜 実装予定 |
----
