@@ -1,30 +1,32 @@
-# 🏃‍♂️ Practice Diary（練習日誌アプリ）
+# Practice Diary - ランナー向け練習記録アプリ
 
-個人練習を記録・分析できるアスリート向けアプリです。
-Googleログインで記録し、LINE連携で通知や簡単入力も対応。
+## 🧭 目的
+練習内容の記録と振り返りを通じて、継続的な成長とコンディション管理をサポートするアプリです。
 
-## 🌐 Webアプリ（公開版）
-[https://practice-diary-dzhy.vercel.app](https://practice-diary-dzhy.vercel.app)
+## 🖼️ 構成図・デモ（抜粋）
+※詳しい構成や図は Notion にてまとめています。
 
-- Googleアカウントでログイン後、練習記録をカレンダー形式で確認できます
-- Firestore を用いた append-only ログ設計
-- GPT による要約機能（開発中）
+- Webアプリ: Next.js + Firebase + GPT API
+- LINE Bot連携: Push通知＆投稿
+- GPT: 練習ヒアリング → 要約/分析（予定）
 
-## 💬 LINE連携（Bot）
-- [LINEでBotを追加](https://lin.ee/fFbx6Gf) ←ここに**友だち追加用URL**を記載
-- 毎晩21時に「今日の練習を記録しよう！」と通知
-- メニューからWeb版にもアクセス可能（外部ブラウザ起動）
+👉 **詳細と図解** → [Notionページはこちら](https://your-notion-link)
 
-## 🛠 技術構成
-- Frontend: Next.js (App Router, TypeScript)
-- Backend: Firebase Auth / Firestore / Functions
-- Notification: GitHub Actions + LINE Messaging API
-- AI連携: OpenAI GPT (予定)
+## 🛠️ 技術スタック
 
-## 🔜 今後の開発予定（v0.7以降）
-- LINE風チャットUIでGPTからのフィードバックを表示
-- Strava自動連携（距離/ペースの取得）
-- スマホアプリ化（Flutter対応）
+| 項目          | 使用技術             |
+|---------------|----------------------|
+| フロントエンド | Next.js (App Router) |
+| バックエンド   | Firebase (Firestore) |
+| LINE連携      | Messaging API + LIFF |
+| AI連携        | OpenAI GPT API       |
+| 開発支援       | v0 / Claude / Cursor / ChatGPT |
 
----
+## 🚀 今後の展望
+- 練習内容のGPTサマリ & タグ分析
+- STRAVA連携による自動ログ取得
+- スマホアプリ（Flutter）での展開
+
+## 📘 Notionでの進捗と詳細まとめ
+👉 https://your-notion-link
 
