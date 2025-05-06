@@ -10,7 +10,7 @@
 - LINE Bot連携: Push通知＆投稿
 - GPT: 練習ヒアリング → 要約/分析（予定）
 
-👉 **詳細と図解** → [Notionページはこちら](https://your-notion-link)
+👉 **詳細と図解** → [Notionページはこちら](https://akinoritachibana.notion.site/Practice-Diary-1ebe2c7a58e88073bce3d38960d9a53d)
 
 ## 🛠️ 技術スタック
 
@@ -28,5 +28,5 @@
 - スマホアプリ（Flutter）での展開
 
 ## 📘 Notionでの進捗と詳細まとめ
-👉 https://your-notion-link
+👉 (https://akinoritachibana.notion.site/Practice-Diary-1ebe2c7a58e88073bce3d38960d9a53d)
 
