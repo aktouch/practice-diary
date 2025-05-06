@@ -24,15 +24,19 @@ export default function ChatInput({ activeTab, onSend }: ChatInputProps) {
     }
   }
 
-  const placeholderText = activeTab === "plan" ? "今日の計画を入力..." : "今日の実績を入力..."
+  const isRecord = activeTab === "record"
+  const placeholderText = isRecord ? "今日の実績を入力..." : "今日の計画を入力..."
 
   return (
     <>
       <form
         onSubmit={handleSubmit}
-        className={cn("flex items-center gap-2 p-3", activeTab === "plan" ? "bg-blue-50" : "bg-green-50")}
+        className={cn(
+          "flex items-center gap-2 p-3",
+          isRecord ? "bg-blue-50" : "bg-green-50"
+        )}
       >
-        {/* GPTボタン */}
+        {/* GPTアシストボタン */}
         <Button
           type="button"
           onClick={() => setAssistOpen(true)}
@@ -40,6 +44,7 @@ export default function ChatInput({ activeTab, onSend }: ChatInputProps) {
           <Sparkles className="h-5 w-5" />
         </Button>
 
+        {/* テキスト入力欄 */}
         <div className="relative flex-1">
           <input
             type="text"
@@ -48,16 +53,21 @@ export default function ChatInput({ activeTab, onSend }: ChatInputProps) {
             placeholder={placeholderText}
             className={cn(
               "w-full p-3 pr-10 rounded-full border bg-white focus:outline-none focus:ring-2",
-              activeTab === "plan" ? "focus:ring-blue-300 border-blue-200" : "focus:ring-green-300 border-green-200",
+              isRecord
+                ? "focus:ring-blue-300 border-blue-200"
+                : "focus:ring-green-300 border-green-200"
             )}
           />
         </div>
 
+        {/* 送信ボタン */}
         <Button
           type="submit"
           className={cn(
             "rounded-full h-12 w-12 flex items-center justify-center",
-            activeTab === "plan" ? "bg-blue-500 hover:bg-blue-600" : "bg-green-500 hover:bg-green-600",
+            isRecord
+              ? "bg-blue-500 hover:bg-blue-600"
+              : "bg-green-500 hover:bg-green-600"
           )}
           disabled={!text.trim()}
         >
@@ -65,18 +75,17 @@ export default function ChatInput({ activeTab, onSend }: ChatInputProps) {
         </Button>
       </form>
 
-      {/* モーダル */}
+      {/* GPTモーダル */}
       <ChatAssistModal
         open={assistOpen}
         onClose={() => setAssistOpen(false)}
-        onInsert={(aiText) => {
-          setText(aiText)
-        }}
+        onInsert={(aiText) => setText(aiText)}
         type={activeTab}
       />
     </>
   )
 }
+
 
 
 

@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   // 🔄 非同期で処理を継続
   events.forEach(async (event: any) => {
     try {
-      if (event.type === 'message' && event.message.type === 'text') {
+  if (event.type === 'message' && event.message.type === 'text') {
         const userId = event.source.userId;
         const text = event.message.text;
         console.log('📩 LINE message:', { userId, text });
@@ -43,15 +43,15 @@ export async function POST(req: NextRequest) {
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
           status: 'confirmed',
-        });
+    });
         console.log('✅ Firestore entry saved!');
 
         // LINE応答
         await client.replyMessage(event.replyToken, {
-          type: 'text',
+      type: 'text',
           text: '記録しました📓',
-        });
-      }
+    });
+  }
     } catch (err) {
       console.error('❌ LINE message processing error:', err);
     }

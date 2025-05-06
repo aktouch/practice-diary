@@ -13,7 +13,7 @@ export default function Home() {
   const router = useRouter()
 
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [viewType, setViewType] = useState<'calendar' | 'list'>('calendar')
+  const [viewType, setViewType] = useState<'calendar' | 'list'>('list')
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth() + 1
