@@ -4,6 +4,13 @@
 import { format, isToday, isSameMonth } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import clsx from 'clsx'
+import {
+  addMonths,
+  subMonths,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+} from 'date-fns'
 
 import { Entry } from '@/lib/firebase'
 
@@ -16,14 +23,6 @@ interface CalendarViewProps {
   onPrevMonth: () => void
   onNextMonth: () => void
 }
-
-import {
-  addMonths,
-  subMonths,
-  startOfMonth,
-  endOfMonth,
-  eachDayOfInterval,
-} from 'date-fns'
 
 export default function CalendarView({
   currentDate,
@@ -42,13 +41,13 @@ export default function CalendarView({
 
   const renderCalendar = () => (
     <div className="grid grid-cols-7 gap-1">
-      {['日', '月', '火', '水', '木', '金', '土'].map((day) => (
+      {['月', '火', '水', '木', '金', '土', '日'].map((day) => (
         <div key={day} className="text-center py-2 font-medium text-sm text-gray-600">
           {day}
         </div>
       ))}
 
-      {Array.from({ length: monthStart.getDay() }).map((_, i) => (
+      {Array.from({ length: (monthStart.getDay() + 6) % 7 }).map((_, i) => (
         <div key={`empty-${i}`} className="p-2" />
       ))}
 
@@ -78,16 +77,27 @@ export default function CalendarView({
     <div className="space-y-2">
       {daysInMonth.map((day) => {
         const dateStr = format(day, 'yyyy-MM-dd')
-        const hasEntries = entries[dateStr]?.length > 0
+        const dayEntries = entries[dateStr] || []
+        const planCount = dayEntries.filter(e => e.type === 'plan').length
+        const recordCount = dayEntries.filter(e => e.type === 'record').length
+
+        const hasPlan = planCount > 0
+        const hasRecord = recordCount > 0
 
         return (
           <div
             key={dateStr}
             onClick={() => onClickDate(dateStr)}
             className={clsx(
-              'p-4 border rounded-lg cursor-pointer',
-              isToday(day) ? 'bg-blue-50 border-blue-300' : 'bg-white',
-              hasEntries && 'border-green-300'
+              'p-4 cursor-pointer rounded-lg border relative',
+              isToday(day) ? 'bg-blue-50' : 'bg-white',
+              hasPlan && hasRecord
+                ? 'border-green-400 ring-2 ring-blue-400'
+                : hasPlan
+                ? 'border-green-400'
+                : hasRecord
+                ? 'border-blue-400'
+                : 'border-gray-200'
             )}
           >
             <div className="flex justify-between items-center">
@@ -95,11 +105,18 @@ export default function CalendarView({
                 <div className="font-semibold">{format(day, 'M月d日', { locale: ja })}</div>
                 <div className="text-sm text-gray-500">{format(day, 'EEEE', { locale: ja })}</div>
               </div>
-              {hasEntries && (
-                <div className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                  {entries[dateStr].length}件
-                </div>
-              )}
+              <div className="flex gap-1">
+                {recordCount > 0 && (
+                  <div className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">
+                    {recordCount}件
+                  </div>
+                )}
+                {planCount > 0 && (
+                  <div className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
+                    {planCount}件
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )
@@ -112,15 +129,6 @@ export default function CalendarView({
       <div className="mb-6 flex justify-between items-center">
         <div className="flex gap-2">
           <button
-            onClick={() => onChangeViewType('calendar')}
-            className={clsx(
-              'px-3 py-1 rounded-xl text-sm',
-              viewType === 'calendar' ? 'bg-blue-600 text-white' : 'bg-gray-200'
-            )}
-          >
-            カレンダー
-          </button>
-          <button
             onClick={() => onChangeViewType('list')}
             className={clsx(
               'px-3 py-1 rounded-xl text-sm',
@@ -128,6 +136,15 @@ export default function CalendarView({
             )}
           >
             リスト
+          </button>
+          <button
+            onClick={() => onChangeViewType('calendar')}
+            className={clsx(
+              'px-3 py-1 rounded-xl text-sm',
+              viewType === 'calendar' ? 'bg-blue-600 text-white' : 'bg-gray-200'
+            )}
+          >
+            カレンダー
           </button>
         </div>
       </div>
@@ -148,5 +165,4 @@ export default function CalendarView({
     </main>
   )
 }
-
 

@@ -30,7 +30,7 @@ const safeGetTime = (value: Timestamp | Date | null | undefined): number => {
 function EntryClientPage({ date, formattedDate }: Props) {
   const router = useRouter();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'plan' | 'record'>('plan');
+  const [activeTab, setActiveTab] = useState<'plan' | 'record'>('record');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const parsedDate = useMemo(() => parseISO(date), [date]);
@@ -74,7 +74,7 @@ function EntryClientPage({ date, formattedDate }: Props) {
       <div
         className={cn(
           'flex-1 overflow-y-auto p-4 space-y-4',
-          activeTab === 'plan' ? 'bg-blue-50' : 'bg-green-50'
+          activeTab === 'plan' ? 'bg-green-50' : 'bg-blue-50'
         )}
       >
         {entries
