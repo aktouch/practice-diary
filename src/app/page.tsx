@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { useMonthEntries } from '@/hooks/useEntries'
 import Header from '@/components/Header'
-import { CalendarView } from '@/components/CalendarView'
+import CalendarView from '@/components/CalendarView'
 import { addMonths, subMonths } from 'date-fns'
 
 export default function Home() {
